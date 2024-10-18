@@ -164,27 +164,35 @@ describe("Voting", () => {
         );
     });
 
-    it('Should finalize proposal as approved when majority vote yes', async () => {
+    it('Should finalize proposal as approved when majority vote yes', async () => {        
         // Cast votes
-        await voting.connect(addr1).vote(0, true, ethers.parseEther("50"));
-        await voting.connect(addr2).vote(0, true, ethers.parseEther("50"));
-        await voting.connect(addr3).vote(0, false, ethers.parseEther("50"));
-        console.log(addr1, addr2, addr3);
-
+        const vote1 = await voting.connect(addr1).vote(0, true, ethers.parseEther("50"));
+        console.log("Address 1 voted: YES");
+        console.log("Transaction Hash:", vote1.hash);
+        
+        const vote2 = await voting.connect(addr2).vote(0, true, ethers.parseEther("50")); 
+        console.log("Address 2 voted: YES");
+        console.log("Transaction Hash:", vote2.hash);
+        
+        const vote3 = await voting.connect(addr3).vote(0, false, ethers.parseEther("50"));
+        console.log("Address 3 voted: NO");
+        console.log("Transaction Hash:", vote3.hash);
+    
         // Increase time to end voting period
         await ethers.provider.send("evm_increaseTime", [86401]);
         await ethers.provider.send("evm_mine", []);
-
+    
         // Finalize proposal
         const tx = await voting.connect(owner).finalizeProposal(0);
-
+        console.log("Finalize Transaction Hash:", tx.hash);
+    
         // Get proposal after finalization
         const proposal = await voting.proposals(0);
-
+    
         // Verify proposal state
         expect(proposal.isExecuted).to.be.true;
         expect(proposal.approvedByLabs).to.be.true;
-
+    
         // Verify event emission
         await expect(tx)
             .to.emit(voting, "ProposalFinalized")
