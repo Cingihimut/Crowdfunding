@@ -7,8 +7,8 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MyToken is ERC20, ERC20Permit, ERC20Votes, Ownable {
-    constructor(uint256 initialSupply, address initialOwner) Ownable(initialOwner) ERC20("MyToken", "MTK") ERC20Permit("MyToken") {
+contract Sturanet is ERC20, ERC20Permit, ERC20Votes, Ownable {
+    constructor(uint256 initialSupply, address initialOwner) Ownable(initialOwner) ERC20("Sturanet", "XTR") ERC20Permit("MyToken") {
         _mint(msg.sender, initialSupply);
     }
     // The following functions are overrides required by Solidity.
@@ -27,5 +27,10 @@ contract MyToken is ERC20, ERC20Permit, ERC20Votes, Ownable {
         returns (uint256)
     {
         return super.nonces(owner);
+    }
+
+    function delegate(address to) public override {
+        require(to != msg.sender, "Self-delegation is disallowed");
+        _delegate(msg.sender, to);
     }
 }
