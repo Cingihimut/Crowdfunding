@@ -12,7 +12,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol"; // Impor ERC20Votes
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 
@@ -23,12 +23,14 @@ contract SturanNetworkGovernor is Initializable, GovernorUpgradeable, GovernorSe
 
     mapping(uint256 => uint256) public proposalStake;
     mapping(address => uint256) public voterStake;
-    mapping(uint256 => address[]) public voters; // Menyimpan daftar pemilih untuk setiap proposal
-    mapping(address => address) public delegates; // Mapping untuk menyimpan alamat delegasi
+    mapping(uint256 => address[]) public voters;
+    mapping(address => address) public delegates;
 
     uint256 public stakeAmount;
     
-    constructor() {
+    constructor(address _governanceToken, address _votesToken) {
+        governanceToken = ERC20(_governanceToken);
+        votesToken = ERC20Votes(_votesToken);
         _disableInitializers();
     }
 
@@ -51,11 +53,9 @@ contract SturanNetworkGovernor is Initializable, GovernorUpgradeable, GovernorSe
         override
     {}
 
-    // Fungsi untuk mendelgasikan suara
     function delegate(address to) public {
         require(to != msg.sender, "Self-delegation is disallowed.");
         
-        // Simpan delegasi
         delegates[msg.sender] = to;
 
         emit Delegated(msg.sender, to);
@@ -89,13 +89,10 @@ contract SturanNetworkGovernor is Initializable, GovernorUpgradeable, GovernorSe
         governanceToken.transferFrom(msg.sender, address(this), stakeAmount);
         voterStake[msg.sender] += stakeAmount;
 
-        // Tambahkan pemilih ke dalam daftar pemilih untuk proposal ini
         voters[proposalId].push(msg.sender);
 
-        // Mendapatkan alamat delegasi
         address delegatee = delegates[msg.sender];
         if (delegatee != address(0)) {
-            // Tambahkan suara delegasi
             voterStake[delegatee] += stakeAmount;
         }
 
@@ -103,11 +100,10 @@ contract SturanNetworkGovernor is Initializable, GovernorUpgradeable, GovernorSe
     }
 
     function _countVotes(uint256 proposalId) internal view returns (uint256) {
-        address[] memory currentVoters = voters[proposalId]; // Ambil daftar pemilih untuk proposal ini
+        address[] memory currentVoters = voters[proposalId]; 
         uint256 totalVotes = 0;
 
         for (uint256 i = 0; i < currentVoters.length; i++) {
-            // Menghitung suara dari delegator
             address voter = currentVoters[i];
             address delegatee = delegates[voter];
             if (delegatee != address(0)) {

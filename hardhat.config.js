@@ -6,6 +6,7 @@ const infura_api_key = process.env.INFURA_API_KEY;
 const private_key = process.env.PRIVATE_KEY;
 const etherscan_api_key = process.env.ETHERSCAN_API_KEY;
 const base_scan = process.env.BASESCAN_API_KEY;
+const arbi_scan = process.env.ARBISCAN_API_KEY;
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -27,21 +28,23 @@ module.exports = {
       accounts: [`${private_key}`],
       gasPrice: 1000000000,
     },
+    "arbitrum-sepolia": {
+      url: `https://arbitrum-sepolia.infura.io/v3/${infura_api_key}`,
+      accounts: [`0x${private_key}`],
+      chainId: 421614,
+      gasPrice: 1000000000,
+    },
+  },
     gannache: {
       url: "HTTP://127.0.0.1:7545",
       accounts: [
         "0xd4d47dc9227fa5bf36a6157002e44b634798295123c7b634cbbd829871f9f0a4",
       ],
     },
-  },
-  "arbitrum-sepolia": {
-    url: "https://sepolia.arbiscan.io/",
-    accounts: [`${private_key}`],
-    gasPrice: 1000000000,
-  },
   etherscan: {
     apiKey: {
       sepolia: etherscan_api_key,
+      arbitrumSepolia : arbi_scan,
       "base-sepolia": base_scan,
     },
     customChains: [
