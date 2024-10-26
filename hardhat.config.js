@@ -7,14 +7,15 @@ const private_key = process.env.PRIVATE_KEY;
 const etherscan_api_key = process.env.ETHERSCAN_API_KEY;
 const base_scan = process.env.BASESCAN_API_KEY;
 const arbi_scan = process.env.ARBISCAN_API_KEY;
+const alchemy_api_key = process.env.ALCHEMY_API_KEY;
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   defaultNetwork: "sepolia",
   networks: {
     hardhat: {
+      chainId: 31337,
       accounts: {
-        chainId: 31337,
         count: 10,
         accountsBalance: "10000000000000000000000",
       },
@@ -29,22 +30,22 @@ module.exports = {
       gasPrice: 1000000000,
     },
     "arbitrum-sepolia": {
-      url: `https://arbitrum-sepolia.infura.io/v3/${infura_api_key}`,
-      accounts: [`0x${private_key}`],
+      url: `https://arb-sepolia.g.alchemy.com/v2/${alchemy_api_key}`,
+      accounts: [`${private_key}`],
       chainId: 421614,
       gasPrice: 1000000000,
     },
-  },
     gannache: {
       url: "HTTP://127.0.0.1:7545",
       accounts: [
         "0xd4d47dc9227fa5bf36a6157002e44b634798295123c7b634cbbd829871f9f0a4",
       ],
     },
+  },
   etherscan: {
     apiKey: {
       sepolia: etherscan_api_key,
-      arbitrumSepolia : arbi_scan,
+      "arbitrum-sepolia": arbi_scan,
       "base-sepolia": base_scan,
     },
     customChains: [
@@ -56,8 +57,16 @@ module.exports = {
           browserURL: "https://sepolia.basescan.org",
         },
       },
+      {
+        network: "arbitrum-sepolia",
+        chainId: 421614,
+        urls: {
+          apiURL: "https://api-sepolia.arbiscan.io/api",
+          browserURL: "https://sepolia.arbiscan.io/",
+        },
+      },
     ],
-  },
+  },  
   solidity: {
     version: "0.8.27",
     settings: {
